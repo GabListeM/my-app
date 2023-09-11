@@ -1,29 +1,53 @@
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import Database from './Database';
 
-export default function AppForm() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Item para comprar</Text>
-        <View style={styles.inputContainer}> 
-          <TextInput 
-            style={styles.input} 
-            placeholder="O que está faltando em casa?"
-            clearButtonMode="always" /> 
-          <TextInput 
-            style={styles.input}  
-            placeholder="Digite a quantidade" 
-            keyboardType={'numeric'}
-            clearButtonMode="always" /> 
-          <TouchableOpacity style={styles.button}> 
-            <Text style={styles.buttonText}>Salvar</Text> 
-          </TouchableOpacity> 
-        </View>
-        <StatusBar style="light" />
-      </View>
-    );
+export default function AppForm({ route, navigation }) {
+  const id = route.params ? route.params.id : undefined;
+  const [descricao, setDescricao] = useState(''); 
+  const [quantidade, setQuantidade] = useState('');
+  
+  useEffect(() => {
+    if(!route.params) return;
+    setDescricao(route.params.descricao);
+    setQuantidade(route.params.quantidade.toString());
+  }, [route])
+
+  function handleDescriptionChange(descricao) { setDescricao(descricao); }
+  function handleQuantityChange(quantidade) { setQuantidade(quantidade); }
+  async function handleButtonPress() {
+    const listItem = { descricao, quantidade: parseInt(quantidade) };
+    Database.saveItem(listItem)
+      .then(response => navigation.navigate("AppList", listItem));
+
   }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Item para comprar</Text>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          onChangeText={handleDescriptionChange}
+          placeholder="O que está faltando em casa?"
+          clearButtonMode="always" 
+          value={descricao.toString()}/>
+        <TextInput
+          style={styles.input}
+          onChangeText={handleQuantityChange}
+          placeholder="Digite a quantidade"
+          keyboardType={'numeric'}
+          clearButtonMode="always" 
+          value={quantidade.toString()}/>
+        <TouchableOpacity style={styles.button} onPress={handleButtonPress}>
+          <Text style={styles.buttonText}>Salvar</Text>
+        </TouchableOpacity>
+      </View>
+      <StatusBar style="light" />
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
