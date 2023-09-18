@@ -8,6 +8,8 @@ export default function AppList({ route, navigation }) {
   
   const [items, setItems] = useState([]);
   
+
+  
   useEffect(() => {
       Database.getItems().then(items => setItems(items));
   }, [route]);
